@@ -146,7 +146,7 @@ public:
 	static b2Body* CreateRectangularStaticBody(b2World* phyWorld, float sizeX, float sizeY)
 	{
 		b2Body* body = CreateStaticBody(phyWorld);
-		b2FixtureDef box = CreateRectangularFixtureDef(sizeX, sizeY, 0.0f, 0.4f, 0.0f);
+		b2FixtureDef box = CreateRectangularFixtureDef(sizeX, sizeY, 0.0f, 0.4f, 1.0f);
 		body->CreateFixture(&box);
 		return body;
 	}

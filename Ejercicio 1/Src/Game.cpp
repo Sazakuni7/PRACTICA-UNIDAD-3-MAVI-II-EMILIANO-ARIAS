@@ -38,6 +38,12 @@ void Game::UpdatePhysics()
 // Dibuja los elementos del juego en la ventana
 void Game::DrawGame()
 {
+    // Dibujamos el techo
+    sf::RectangleShape ceilingShape(sf::Vector2f(0, 5));
+    ceilingShape.setFillColor(sf::Color::Red);
+    ceilingShape.setPosition(100, 95);
+    wnd->draw(ceilingShape);
+        
     // Dibujamos el suelo
     sf::RectangleShape groundShape(sf::Vector2f(500, 5));
     groundShape.setFillColor(sf::Color::Red);
@@ -46,7 +52,7 @@ void Game::DrawGame()
 
     // Dibujamos las paredes
     sf::RectangleShape leftWallShape(sf::Vector2f(10, alto)); // Alto de la ventana
-    leftWallShape.setFillColor(sf::Color::Red);
+    leftWallShape.setFillColor(sf::Color::Green);
     leftWallShape.setPosition(100, 0); // X = 100 para que comience donde termina el suelo
     wnd->draw(leftWallShape);
 
@@ -70,6 +76,13 @@ void Game::DoEvents()
         case Event::Closed:
             wnd->close(); // Cierra la ventana
             break;
+        case Event::MouseButtonPressed:
+            // Crea un cuerpo dinámico en forma de triángulo en la posición del clic del ratón
+            b2Body* body = Box2DHelper::CreateTriangularDynamicBody(phyWorld, b2Vec2(0.0f, 0.0f), 10.0f, 10.f, 0.4f, 0.0f);
+            // Transforma las coordenadas según la vista activa
+            Vector2f pos = wnd->mapPixelToCoords(Vector2i(evt.mouseButton.x, evt.mouseButton.y));
+            body->SetTransform(b2Vec2(pos.x, pos.y), 0.0f);
+            break;
         }
     }
 
@@ -80,9 +93,9 @@ void Game::DoEvents()
     if (Keyboard::isKeyPressed(Keyboard::Right))
         controlBody->SetLinearVelocity(b2Vec2(50.0f, 0.0f));
     if (Keyboard::isKeyPressed(Keyboard::Down))
-        controlBody->SetLinearVelocity(b2Vec2(0.0f, 25.0f));
+        controlBody->SetLinearVelocity(b2Vec2(0.0f, 50.0f));
     if (Keyboard::isKeyPressed(Keyboard::Up))
-        controlBody->SetLinearVelocity(b2Vec2(0.0f, -25.0f));
+        controlBody->SetLinearVelocity(b2Vec2(0.0f, -50.0f));
 }
 
 // Configura el área visible en la ventana de renderizado
@@ -98,7 +111,7 @@ void Game::SetZoom()
 void Game::InitPhysics()
 {
     // Inicializa el mundo físico con la gravedad por defecto
-    phyWorld = new b2World(b2Vec2(0.0f, 0.0f));
+    phyWorld = new b2World(b2Vec2(0.0f, 9.8f));
 
     // Inicializa el renderizador de depuración para el mundo físico
     debugRender = new SFMLRenderer(wnd);
@@ -106,6 +119,9 @@ void Game::InitPhysics()
     phyWorld->SetDebugDraw(debugRender);
 
     // Crea los elementos estáticos del juego (suelo y paredes)
+    b2Body* ceilingBody = Box2DHelper::CreateRectangularStaticBody(phyWorld, 100, 10);
+    ceilingBody->SetTransform(b2Vec2(50.0f, 0.0f), 0.0f);
+
     b2Body* groundBody = Box2DHelper::CreateRectangularStaticBody(phyWorld, 100, 10);
     groundBody->SetTransform(b2Vec2(50.0f, 100.0f), 0.0f);
   
@@ -116,9 +132,9 @@ void Game::InitPhysics()
     rightWallBody->SetTransform(b2Vec2(100.0f, 50.0f), 0.0f);
 
     // Crea un cuerpo de círculo controlado por el teclado
-    controlBody = Box2DHelper::CreateCircularDynamicBody(phyWorld, 5, 1.0f, 0.4f, 0.9f);
+    controlBody = Box2DHelper::CreateCircularDynamicBody(phyWorld, 5, 1.f, 0.5f, 1.0f);
     controlBody->SetTransform(b2Vec2(50.0f, 80.0f), 0.0f);
-    controlBody->SetLinearVelocity(b2Vec2(5.f, 15.f));
+    controlBody->SetLinearVelocity(b2Vec2(80.f, 80.f));
 
     // Carga la textura de la pelota para el avatar
     texturaCaja.loadFromFile("Pelota.png");

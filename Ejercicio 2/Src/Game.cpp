@@ -18,8 +18,7 @@ void Game::Loop()
 	while (wnd->isOpen())
 	{
 		wnd->clear(clearColor);
-		DoEvents();
-		CheckCollitions();
+		DoEvents();	
 		UpdatePhysics();
 		DrawGame();
 		wnd->display();
@@ -28,35 +27,15 @@ void Game::Loop()
 
 void Game::UpdatePhysics()
 {
-	// Control del resorte
-	b2Vec2 delta = ball2->GetPosition();
-	delta -= ball1->GetPosition();
-
-	float currentLength = delta.Length();
-	if (fabs(currentLength - 20.0f) > 0.1f)
-	{
-		delta *= 80.0f * (currentLength - 20.0f) / currentLength;
-		ball1->ApplyForceToCenter(delta, true);
-		ball2->ApplyForceToCenter(-delta, true);
-	}
-
-	// Control del arrastre
-	if (mouseJoint && pickedBody)
-	{
-		Vector2f worldPos = wnd->mapPixelToCoords(Mouse::getPosition(*wnd));
-		b2Vec2 force(worldPos.x, worldPos.y);
-		force -= pickedBody->GetPosition();
-		force *= 100.0f;
-		pickedBody->ApplyForceToCenter(force, true);
-	}
-
+	ballSpring->Update();
 	phyWorld->Step(frameTime, 8, 8);
 	phyWorld->ClearForces();
 	phyWorld->DebugDraw();
 }
 
 void Game::DrawGame()
-{}
+{
+	ballSpring->Draw(wnd);
 
 class MyQueryCallback : public b2QueryCallback {
 public:
@@ -68,9 +47,9 @@ public:
 	bool ReportFixture(b2Fixture* fixture) override {
 		if (fixture->TestPoint(point)) {
 			foundFixture = fixture;
-			return false; // cortamos la búsqueda
+			return false;
 		}
-		return true; // seguir buscando
+		return true;
 	}
 };
 
@@ -86,11 +65,12 @@ void Game::DoEvents()
 			break;
 		case Event::MouseButtonPressed:
 		{
-			if (mouseJoint) return; // Ya hay una pelota seleccionada
-
+			if (mouseJoint) {
+				Vector2f pos = wnd->mapPixelToCoords(Mouse::getPosition(*wnd));
+				mouseJoint->SetTarget(b2Vec2(pos.x, pos.y));
+			}
 			Vector2f pos = wnd->mapPixelToCoords(Vector2i(evt.mouseButton.x, evt.mouseButton.y));
 			b2Vec2 worldPos(pos.x, pos.y);
-			//b2Vec2 worldMousePos = b2Vec2(pos.x, pos.y);
 
 			// Query para detectar si clickeaste una pelota
 			b2AABB aabb;
@@ -102,26 +82,19 @@ void Game::DoEvents()
 
 			if (callback.foundFixture)
 			{
-				std::cout << "Fixture encontrada con click!" << std::endl;
 				b2Body* body = callback.foundFixture->GetBody();
-				//if (body->GetType() == b2_dynamicBody) {
+
 				if (body == ball1 || body == ball2) {
 					pickedBody = body;
-					/*mouseJoint = Box2DHelper::CreateMouseJoint(
-						phyWorld,
-						groundBodyMouse,
-						pickedBody,
-						worldPos,
-						1000.0f * pickedBody->GetMass(), // Fuerza
-						2.0f,  // Frecuencia (elasticidad)
-						0.7f   // Amortiguación
-					);*/
 					b2MouseJointDef mjd;
 					mjd.bodyA = groundBodyMouse;
 					mjd.bodyB = pickedBody;
 					mjd.target = worldPos;
-					mjd.maxForce = 5000.0f * pickedBody->GetMass();	
-
+					mjd.maxForce = 10000.0f * pickedBody->GetMass();	
+					//Para MouseJoint, tanto stiffness como damping si funcionan y muestra un impacto real, en este caso se simula un resorte desde la zona de la pelota
+					//clickeada hacia el punto de arrastre (mi cursor)
+					mjd.stiffness = 12.0f;  //Rigidez
+					mjd.damping = 0.7f; //Amortiguación
 					mouseJoint = (b2MouseJoint*)phyWorld->CreateJoint(&mjd);
 					pickedBody->SetAwake(true);
 				}
@@ -147,10 +120,6 @@ void Game::DoEvents()
 	}
 }
 
-void Game::CheckCollitions()
-{
-	// Veremos mas adelante
-}
 
 // Definimos el area del mundo que veremos en nuestro juego
 // Box2D tiene problemas para simular magnitudes muy grandes
@@ -205,18 +174,22 @@ void Game::InitPhysics()
 	ball2->SetTransform(b2Vec2(60.0f, 50.0f), 0.0f);
 	ball2->SetLinearDamping(0.3f);
 
-	// Resorte (DistanceJoint)
+	ballSpring = new Spring(ball1, ball2, 18.0f, 50.0f, 2.0f);
+
+	//DISTANCEJOINT COMENTADO: Intenté utilizar este tipo de Joint para mantener unidas las 2 pelotas pero simular un resorte entre ellas
+	//Ya que FrequencyHz y DampingRatio no funcionaban (según leí es por la version de Box2D) intenté usar stiffness y damping que son sus derivados
+	//pero no hubo resultado alguno, no se simula un resorte
+
+	/*// Resorte (DistanceJoint)
 	b2DistanceJointDef jointDef;
 	jointDef.Initialize(ball1, ball2, ball1->GetWorldCenter(), ball2->GetWorldCenter());
-	jointDef.collideConnected = true;
+	jointDef.collideConnected = false;
+	jointDef.length = 20.0f;
 
-	jointDef.length = (ball2->GetPosition() - ball1->GetPosition()).Length(); //Distancia inicial
-	jointDef.stiffness = 0.5f;       //Rigidez
-	jointDef.damping = 0.5f;
+	jointDef.stiffness = 15.0f;  //rigidez
+	jointDef.damping = 2.0f;    //amortiguación
 
-	phyWorld->CreateJoint(&jointDef);
-
-
+	phyWorld->CreateJoint(&jointDef);*/
 }
 
 

@@ -36,7 +36,7 @@ void Game::UpdatePhysics()
 void Game::DrawGame()
 {
 	ballSpring->Draw(wnd);
-
+}
 class MyQueryCallback : public b2QueryCallback {
 public:
 	b2Vec2 point;

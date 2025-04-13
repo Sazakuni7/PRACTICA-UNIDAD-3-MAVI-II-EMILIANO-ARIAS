@@ -14,7 +14,7 @@ private:
 	int ancho;
 	RenderWindow *wnd;
 	Color clearColor;
-	Spring* ballSpring; // Añade este miembro
+	Spring* ballSpring;
 	// Objetos de box2d
 	b2World *phyWorld;
 	SFMLRenderer *debugRender;

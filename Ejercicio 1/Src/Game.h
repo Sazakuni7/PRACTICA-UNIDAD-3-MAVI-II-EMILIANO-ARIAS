@@ -34,7 +34,6 @@ public:
 
 	//Constructores, destructores e inicializadores
 	Game(int ancho, int alto,std::string titulo);
-	void CreateEnemy(int x, int y);
 	void InitPhysics();
 
 	//Main game loop
@@ -43,8 +42,6 @@ public:
 	void UpdatePhysics();
 	void DoEvents();
 	void SetZoom();
-	
-
 	
 };
 

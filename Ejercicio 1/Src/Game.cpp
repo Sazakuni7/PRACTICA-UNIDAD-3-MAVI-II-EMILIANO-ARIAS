@@ -82,22 +82,29 @@ void Game::DoEvents()
             // Transforma las coordenadas según la vista activa
             Vector2f pos = wnd->mapPixelToCoords(Vector2i(evt.mouseButton.x, evt.mouseButton.y));
             body->SetTransform(b2Vec2(pos.x, pos.y), 0.0f);
+
+            Avatar* nuevoAvatar = new Avatar(body, new sf::Sprite(texturaCaja));
+
+            // Aplicar un impulso aleatorio
+            b2Vec2 impulsoAleatorio(rand() % 100 - 50, rand() % 100 - 50);
+            b2Vec2 origen(pos.x, pos.y);
+            nuevoAvatar->AplicarImpulso(impulsoAleatorio, origen);
             break;
         }
     }
-
-    // Mueve el cuerpo controlado por el teclado
-    controlBody->SetAwake(true); // Activa el cuerpo para que responda a fuerzas y colisiones
-    if (Keyboard::isKeyPressed(Keyboard::Left))
-        controlBody->SetLinearVelocity(b2Vec2(-50.0f, 0.0f));
-    if (Keyboard::isKeyPressed(Keyboard::Right))
-        controlBody->SetLinearVelocity(b2Vec2(50.0f, 0.0f));
-    if (Keyboard::isKeyPressed(Keyboard::Down))
-        controlBody->SetLinearVelocity(b2Vec2(0.0f, 50.0f));
-    if (Keyboard::isKeyPressed(Keyboard::Up))
-        controlBody->SetLinearVelocity(b2Vec2(0.0f, -50.0f));
+    /*
+        // Mueve el cuerpo controlado por el teclado
+        controlBody->SetAwake(true); // Activa el cuerpo para que responda a fuerzas y colisiones
+        if (Keyboard::isKeyPressed(Keyboard::Left))
+            controlBody->SetLinearVelocity(b2Vec2(-50.0f, 0.0f));
+        if (Keyboard::isKeyPressed(Keyboard::Right))
+            controlBody->SetLinearVelocity(b2Vec2(50.0f, 0.0f));
+        if (Keyboard::isKeyPressed(Keyboard::Down))
+            controlBody->SetLinearVelocity(b2Vec2(0.0f, 50.0f));
+        if (Keyboard::isKeyPressed(Keyboard::Up))
+            controlBody->SetLinearVelocity(b2Vec2(0.0f, -50.0f));
+    */
 }
-
 // Configura el área visible en la ventana de renderizado
 void Game::SetZoom()
 {
@@ -111,7 +118,7 @@ void Game::SetZoom()
 void Game::InitPhysics()
 {
     // Inicializa el mundo físico con la gravedad por defecto
-    phyWorld = new b2World(b2Vec2(0.0f, 9.8f));
+    phyWorld = new b2World(b2Vec2(0.0f, 0.0f));
 
     // Inicializa el renderizador de depuración para el mundo físico
     debugRender = new SFMLRenderer(wnd);
@@ -132,14 +139,20 @@ void Game::InitPhysics()
     rightWallBody->SetTransform(b2Vec2(100.0f, 50.0f), 0.0f);
 
     // Crea un cuerpo de círculo controlado por el teclado
-    controlBody = Box2DHelper::CreateCircularDynamicBody(phyWorld, 5, 1.f, 0.5f, 1.0f);
+    controlBody = Box2DHelper::CreateCircularDynamicBody(phyWorld, 5, 1.f, 0.1f, 1.0f);
     controlBody->SetTransform(b2Vec2(50.0f, 80.0f), 0.0f);
-    controlBody->SetLinearVelocity(b2Vec2(80.f, 80.f));
+    //controlBody->SetLinearVelocity(b2Vec2(80.f, 80.f));
 
     // Carga la textura de la pelota para el avatar
     texturaCaja.loadFromFile("Pelota.png");
 
     // Inicializa el avatar del jugador con el cuerpo físico creado y la textura de la pelota
     controlBodyAvatar = new Avatar(controlBody, new sf::Sprite(texturaCaja));
+
+    // Aplica un impulso inicial
+    b2Vec2 impulsoInicial(1980.f,1980.f);
+    b2Vec2 origen(50.0f, 80.0f);
+    controlBodyAvatar->AplicarImpulso(impulsoInicial, origen);
+
 }
 

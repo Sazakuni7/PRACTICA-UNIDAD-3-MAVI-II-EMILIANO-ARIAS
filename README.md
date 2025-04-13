@@ -13,6 +13,11 @@ k (stiffness) controla la rigidez.
 Δx es la deformación desde la longitud de reposo.
 -Al final este método no interfiere con MouseJoint porque lo aplico en UpdatePhysics(), un método de Game.
 
+Ejercicio 3:
+
+-Pelota unida a caja flotante por un Spring personalizado mencionado en el Ejercicio 2 (DistanceJoint también lo permite pero no hace resorte, solo péndulo)
+-Hay MouseJoint para poder click and drag a la pelota y experimentar con el resorte
+
 Ejercicio 4:
 
 -Se utiliza el método AplicarFuerza que tiene la clase Avatar

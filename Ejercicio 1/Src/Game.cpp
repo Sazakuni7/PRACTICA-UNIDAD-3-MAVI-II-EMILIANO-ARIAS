@@ -77,21 +77,21 @@ void Game::DoEvents()
             wnd->close(); // Cierra la ventana
             break;
         case Event::MouseButtonPressed:
-            // Crea un cuerpo dinámico en forma de triángulo en la posición del clic del ratón
+            // Crear cuerpo y avatar
             b2Body* body = Box2DHelper::CreateTriangularDynamicBody(phyWorld, b2Vec2(0.0f, 0.0f), 10.0f, 10.f, 0.4f, 0.0f);
-            // Transforma las coordenadas según la vista activa
             Vector2f pos = wnd->mapPixelToCoords(Vector2i(evt.mouseButton.x, evt.mouseButton.y));
             body->SetTransform(b2Vec2(pos.x, pos.y), 0.0f);
 
             Avatar* nuevoAvatar = new Avatar(body, new sf::Sprite(texturaCaja));
 
-            // Aplicar un impulso aleatorio
+            // Aplicar impulso aleatorio
             b2Vec2 impulsoAleatorio(rand() % 100 - 50, rand() % 100 - 50);
-            b2Vec2 origen(pos.x, pos.y);
-            nuevoAvatar->AplicarImpulso(impulsoAleatorio, origen);
+            nuevoAvatar->AplicarImpulso(impulsoAleatorio, nuevoAvatar->GetPosition());
             break;
         }
+       
     }
+//DESCOMENTAR EN CASO DE QUERER MOVER LA PELOTA
     /*
         // Mueve el cuerpo controlado por el teclado
         controlBody->SetAwake(true); // Activa el cuerpo para que responda a fuerzas y colisiones

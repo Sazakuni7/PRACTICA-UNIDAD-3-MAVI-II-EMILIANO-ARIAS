@@ -94,7 +94,7 @@ void Game::DoEvents()
 					//Para MouseJoint, tanto stiffness como damping si funcionan y muestra un impacto real, en este caso se simula un resorte desde la zona de la pelota
 					//clickeada hacia el punto de arrastre (mi cursor)
 					mjd.stiffness = 12.0f;  //Rigidez
-					mjd.damping = 0.7f; //Amortiguación
+					mjd.damping = 0.7f; //AmortiguaciÃ³n
 					mouseJoint = (b2MouseJoint*)phyWorld->CreateJoint(&mjd);
 					pickedBody->SetAwake(true);
 				}
@@ -167,7 +167,7 @@ void Game::InitPhysics()
 	// Pelota 1
 	ball1 = Box2DHelper::CreateCircularDynamicBody(phyWorld, 3.5f, 0.3f, 0.1f, 1.0f);
 	ball1->SetTransform(b2Vec2(40.0f, 50.0f), 0.0f);
-	ball1->SetLinearDamping(0.3f);  // Amortiguación lineal
+	ball1->SetLinearDamping(0.3f);  // AmortiguaciÃ³n lineal
 
 	// Pelota 2
 	ball2 = Box2DHelper::CreateCircularDynamicBody(phyWorld, 3.5f, 0.3f, 0.1f, 1.0f);
@@ -176,8 +176,8 @@ void Game::InitPhysics()
 
 	ballSpring = new Spring(ball1, ball2, 18.0f, 50.0f, 2.0f);
 
-	//DISTANCEJOINT COMENTADO: Intenté utilizar este tipo de Joint para mantener unidas las 2 pelotas pero simular un resorte entre ellas
-	//Ya que FrequencyHz y DampingRatio no funcionaban (según leí es por la version de Box2D) intenté usar stiffness y damping que son sus derivados
+	//DISTANCEJOINT COMENTADO: IntentÃ© utilizar este tipo de Joint para mantener unidas las 2 pelotas pero simular un resorte entre ellas
+	//Ya que FrequencyHz y DampingRatio no funcionaban (segÃºn leÃ­ es por la version de Box2D) intentÃ© usar stiffness y damping que son sus derivados
 	//pero no hubo resultado alguno, no se simula un resorte
 
 	/*// Resorte (DistanceJoint)
@@ -187,11 +187,13 @@ void Game::InitPhysics()
 	jointDef.length = 20.0f;
 
 	jointDef.stiffness = 15.0f;  //rigidez
-	jointDef.damping = 2.0f;    //amortiguación
+	jointDef.damping = 2.0f;    //amortiguaciÃ³n
 
 	phyWorld->CreateJoint(&jointDef);*/
 }
 
 
 Game::~Game(void)
-{ }
+{
+delete ballSpring;
+}

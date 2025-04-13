@@ -9,6 +9,7 @@ using namespace sf;
 class Game
 {
 private:
+
 	//Propiedades de la ventana
 	int alto;
 	int ancho;
@@ -29,7 +30,6 @@ private:
 	
 	sf::Texture texturaCaja;
 		
-
 public:
 
 	//Constructores, destructores e inicializadores

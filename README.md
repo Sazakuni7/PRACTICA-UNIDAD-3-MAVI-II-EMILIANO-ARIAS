@@ -10,6 +10,13 @@ Ejercicio 2:
 
 Ejercicio 4:
 
+-Se utiliza el metodo AplicarFuerza que tiene la clase Avatar
 -Movemos la caja con las flechas izquierda y derecha.
 -Tiene un 0.1f de restitución para simular un pequeño rebote.
 -Tiene 0.4f de fricción al igual que el suelo
+
+Ejercicio 5:
+
+-Podemos clickear cualquier zona de cualquier miembro del ragdoll y arrastrar.
+-Usamos MouseJoint
+-Intenté usar como en la teoría dice FrequencyHz y DampingRatio, pero me dice que no son miembros, así que los reemplaze por Stiffness y Damping respectivamente (Rigidez y amortiguación)

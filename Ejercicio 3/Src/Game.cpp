@@ -19,7 +19,6 @@ void Game::Loop()
 	{
 		wnd->clear(clearColor);
 		DoEvents();
-		CheckCollitions();
 		UpdatePhysics();
 		DrawGame();
 		wnd->display();
@@ -28,17 +27,7 @@ void Game::Loop()
 
 void Game::UpdatePhysics()
 {
-	// Aplicar fuerza adicional para mejor arrastre
-	if (mouseJoint && pickedBody)
-	{
-		b2Vec2 target = mouseJoint->GetTarget();
-		b2Vec2 currentPos = pickedBody->GetPosition();
-		b2Vec2 force;
-		force.x = 50.0f * (target.x - currentPos.x);
-		force.y = 50.0f * (target.y - currentPos.y);
-		pickedBody->ApplyForceToCenter(force, true);
-	}
-
+	ballSpring->Update();
 	phyWorld->Step(frameTime, 8, 8);
 	phyWorld->ClearForces();
 	phyWorld->DebugDraw();
@@ -46,6 +35,7 @@ void Game::UpdatePhysics()
 
 void Game::DrawGame()
 {
+	ballSpring->Draw(wnd);  // Dibuja el resorte como línea
 }
 
 class MyQueryCallback : public b2QueryCallback {
@@ -97,8 +87,9 @@ void Game::DoEvents()
 				mjd.bodyA = groundBodyMouse;
 				mjd.bodyB = pickedBody;
 				mjd.target = worldPos;
-				mjd.maxForce = 3000.0f * pickedBody->GetMass();
-
+				mjd.maxForce = 30000.0f * pickedBody->GetMass();
+				mjd.stiffness = 12.0f;  //Rigidez
+				mjd.damping = 0.7f; //Amortiguación
 				mouseJoint = (b2MouseJoint*)phyWorld->CreateJoint(&mjd);
 				pickedBody->SetAwake(true);
 			}
@@ -123,10 +114,6 @@ void Game::DoEvents()
 	}
 }
 
-void Game::CheckCollitions()
-{
-}
-
 void Game::SetZoom()
 {
 	View camara;
@@ -146,7 +133,7 @@ void Game::InitPhysics()
 	debugRender->SetFlags(UINT_MAX);
 	phyWorld->SetDebugDraw(debugRender);
 
-	// Creamos un piso y paredes
+	//piso y paredes
 	b2Body* groundBody = Box2DHelper::CreateRectangularStaticBody(phyWorld, 100, 10);
 	groundBody->SetTransform(b2Vec2(50.0f, 100.0f), 0.0f);
 
@@ -156,11 +143,11 @@ void Game::InitPhysics()
 	b2Body* rightWallBody = Box2DHelper::CreateRectangularStaticBody(phyWorld, 10, 100);
 	rightWallBody->SetTransform(b2Vec2(100.0f, 50.0f), 0.0f);
 
-	//creamos un techo
+	//techo
 	b2Body* topWallBody = Box2DHelper::CreateRectangularStaticBody(phyWorld, 100, 10);
 	topWallBody->SetTransform(b2Vec2(50.0f, 0.0f), 0.0f);
 
-	// 1. Crear caja estática (pelota 1)
+	// Crear caja estática (pelota 1)
 	ball1 = Box2DHelper::CreateRectangularStaticBody(phyWorld, 4.0f, 4.0f); // Caja de 4x4 unidades
 	ball1->SetTransform(b2Vec2(40.0f, 50.0f), 0.0f); // Posicionamos la caja
 
@@ -169,13 +156,10 @@ void Game::InitPhysics()
 	ball2->SetTransform(b2Vec2(60.0f, 50.0f), 0.0f);
 	ball2->SetLinearDamping(0.1f);
 
-	//Conectar ambas con joint elástico
-	b2DistanceJointDef jointDef;
-	jointDef.Initialize(ball1, ball2, ball1->GetWorldCenter(), ball2->GetWorldCenter());
-	jointDef.collideConnected = true;
-	jointDef.length = 20.0f;
-	jointDef.stiffness = 0.1f;  // Elasticidad
-	phyWorld->CreateJoint(&jointDef);
+	float restLength = 20.0f;  
+	float stiffness = 50.0f;   //Rigidez
+	float damping = 2.0f;      //Amortiguación
+	ballSpring = new Spring(ball1, ball2, restLength, stiffness, damping);
 
 	// Configuración del cuerpo de referencia para mouse joint
 	b2BodyDef groundBodyDef;
@@ -188,4 +172,6 @@ void Game::InitPhysics()
 
 
 Game::~Game(void)
-{ }
+{
+	delete ballSpring;
+}

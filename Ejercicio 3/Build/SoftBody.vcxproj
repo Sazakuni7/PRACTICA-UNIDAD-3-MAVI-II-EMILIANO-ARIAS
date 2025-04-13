@@ -22,6 +22,7 @@
     <ClInclude Include="..\Src\Box2DHelper.h" />
     <ClInclude Include="..\Src\Game.h" />
     <ClInclude Include="..\Src\SFMLRenderer.h" />
+    <ClInclude Include="..\Src\Spring.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Src\Box2dEmptyApp.cpp" />

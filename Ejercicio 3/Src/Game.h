@@ -3,6 +3,7 @@
 #include <SFML/System.hpp>
 #include "SFMLRenderer.h"
 #include <list>
+#include "Spring.h"
 
 using namespace sf;
 class Game
@@ -13,7 +14,7 @@ private:
 	int ancho;
 	RenderWindow *wnd;
 	Color clearColor;
-
+	Spring* ballSpring;
 	// Objetos de box2d
 	b2World *phyWorld;
 	SFMLRenderer *debugRender;
@@ -34,8 +35,6 @@ public:
 
 	// Constructores, destructores e inicializadores
 	Game(int ancho, int alto,std::string titulo);
-	void CheckCollitions();
-	void CreateEnemy(int x, int y);
 	~Game(void);
 	void InitPhysics();
 

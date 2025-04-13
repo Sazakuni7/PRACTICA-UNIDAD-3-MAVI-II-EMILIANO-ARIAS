@@ -7,6 +7,11 @@ Ejercicio 1:
 
 Ejercicio 2:
 
+-Se puede hacer click and drag en cualquier pelota con MouseJoint, se simula resorte entre el punto clickeado y el de arrastre.
+-Intenté unir ambas pelotas con DistanceJoint pero no tuve éxito, incluso con stiffness y damping no me permitió ajustar la fuerza elástica. Además el MouseJoint competía con el DistanceJoint, generando movimientos bruscos. Investigué un poco y me decanté por probar a crear una clase Spring personalizada, y aquí tiene un control matemático exacto con la ley de Hooke (F = -k * Δx) donde:
+k (stiffness) controla la rigidez.
+Δx es la deformación desde la longitud de reposo.
+-Al final este método no interfiere con MouseJoint porque lo aplico en UpdatePhysics(), un método de Game.
 
 Ejercicio 4:
 
